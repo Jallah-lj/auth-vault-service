@@ -29,6 +29,27 @@ Run the test suite:
 pytest
 ```
 
+The suite covers authentication, session rotation, vault CRUD, cross-user
+isolation and encryption at rest:
+
+| File | Focus |
+| --- | --- |
+| `tests/test_auth.py` | Registration, login, refresh rotation and reuse, logout revocation, `/auth/me` |
+| `tests/test_vault.py` | Vault CRUD, validation, encryption at rest, cross-user isolation |
+| `tests/test_security.py` | Password hashing, Fernet round trips, JWT signing and claim validation |
+| `tests/test_smoke.py` | Health, OpenAPI schema and the end-to-end journey |
+
+Tests run against a temporary SQLite database configured in `tests/conftest.py`;
+they never touch your development database. Each test truncates the tables
+afterwards, so cases are order-independent.
+
+To see coverage (currently 99% of `app/`):
+
+```bash
+pip install pytest-cov
+pytest --cov=app --cov-report=term-missing
+```
+
 ### Docker
 
 Set the two required secrets, then start the service and PostgreSQL:
