@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      AUTH_VAULT_DATABASE_URL: postgresql+psycopg://auth_vault:auth_vault@db:5432/auth_vault
+      AUTH_VAULT_JWT_SECRET: ${AUTH_VAULT_JWT_SECRET:?set this in your environment}
+      AUTH_VAULT_ENCRYPTION_KEY: ${AUTH_VAULT_ENCRYPTION_KEY:?set this in your environment}
+      AUTH_VAULT_CORS_ORIGINS: '["http://localhost:3000"]'
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: auth_vault
+      POSTGRES_USER: auth_vault
+      POSTGRES_PASSWORD: auth_vault
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_vault -d auth_vault"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
